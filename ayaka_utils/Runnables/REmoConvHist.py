@@ -3,7 +3,7 @@ import json
 
 from langchain.schema.runnable import RunnableLambda
 
-from Utils.Classes.EmoTensorModels import EmoTensorFull_CTXD, EmoTensor4DSlice_CTXD, EmoTensor2DSlice_CTXD, EmoTensor1DSlice_CTXD
+from ayaka_utils.Classes.EmoTensorModels import EmoTensorFull_CTXD, EmoTensor4DSlice_CTXD, EmoTensor2DSlice_CTXD, EmoTensor1DSlice_CTXD
 #from Utils.Defs.pprint import pprint
 
 ################################################################################

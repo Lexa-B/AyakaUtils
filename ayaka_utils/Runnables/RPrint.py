@@ -1,6 +1,6 @@
 from langchain.schema.runnable import RunnableLambda
 from functools import partial
-from Utils.Defs.pprint import pprint
+from ayaka_utils.Defs.pprint import pprint
 
 
 def RPrint(preface=""):

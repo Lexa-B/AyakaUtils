@@ -1,4 +1,4 @@
-from Utils.Classes.Timer import Timer
+from ayaka_utils.Classes.Timer import Timer
 from langchain.schema.runnable import RunnableLambda
 
 
