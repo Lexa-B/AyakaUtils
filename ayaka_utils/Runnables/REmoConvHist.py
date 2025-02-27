@@ -1,6 +1,4 @@
 from typing import List
-import json
-import os
 
 from langchain.schema.runnable import RunnableLambda
 
@@ -9,13 +7,6 @@ from ayaka_utils.Classes.EmoTensorModels import EmoTensorFull_CTXD, EmoTensor4DS
 
 ################################################################################
 ## Configuration
-
-if os.path.exists("./Configs/EmoTensor/EmoScaleLabels.jsonc"):
-    EmoScaleLabelsDefs = json.load(open("./Configs/EmoTensor/EmoScaleLabels.jsonc")) # Default EmoTensor Emotion Scale Labels
-elif os.path.exists("./Configs/EmoScaleLabels.json"):
-    EmoScaleLabelsDefs = json.load(open("./Configs/EmoScaleLabels.json")) # Default EmoTensor Emotion Scale Labels
-else:
-    raise FileNotFoundError("EmoScaleLabels.jsonc not found in ./Configs/EmoTensor/")
 
 SupportedTensorFileVersions = [
     "v0.0.1-EmoTensor Sliced Contextualized"
@@ -36,7 +27,7 @@ def GetUserPrefName(UserID: str, ConvoUsers: List[dict]) -> str:
     """
     return [d['preferred_name'] for d in ConvoUsers if d['id'] == UserID][0]
 
-def BuildReadableEmoDesc(Emotion: EmoTensor1DSlice_CTXD, RenderContext=False, EmoScaleLabels=EmoScaleLabelsDefs) -> str:
+def BuildReadableEmoDesc(Emotion: EmoTensor1DSlice_CTXD, EmoScaleLabels: dict, RenderContext=False) -> str:
     """
     Build a readable emotion description that makes it easy for the LLM to read. Can output the context if RenderContext is True. Can have custom label assignments, but defaults to the default labels
     """
@@ -81,7 +72,7 @@ def BuildReadableEmoDesc(Emotion: EmoTensor1DSlice_CTXD, RenderContext=False, Em
             EmotionDesc += "\n"
         return EmotionDesc
     
-def BuildReadableEmoStateDesc(Emotions: EmoTensor2DSlice_CTXD, RenderContext=False, EmoScaleLabels=EmoScaleLabelsDefs) -> str:
+def BuildReadableEmoStateDesc(Emotions: EmoTensor2DSlice_CTXD, EmoScaleLabels: dict, RenderContext=False) -> str:
     """
     Build a readable emotion state description. Can output the context if RenderContext is True. Can have custom label assignments, but defaults to the default labels
     """
@@ -175,13 +166,13 @@ def GetSimplifiedConversationHistory(
         TensorFile: EmoTensorFull_CTXD, 
         ConvoUsers: List[dict], 
         PerspectiveUser: str,
+        EmoScaleLabels: dict,
         Fidelity_1: int = 2, 
         Fidelity_2: int = 2, 
         Fidelity_3: int = 4, 
         Fidelity_4: int = 8, 
         Fidelity_5: int = 16,
-        Fidelity_6: int = 32,
-        EmoScaleLabels: dict = EmoScaleLabelsDefs) -> str:
+        Fidelity_6: int = 32) -> str:
     """
     Get a simplified conversation history for the LLM to read
     """
@@ -268,14 +259,14 @@ def GetSimplifiedConversationHistory(
 
 def REmoConvHist(
             TensorFile: EmoTensorFull_CTXD, 
-            ConvoUsers: List[dict], 
+            ConvoUsers: List[dict],
+            EmoScaleLabels: dict, 
             Fidelity_1: int = 2, 
             Fidelity_2: int = 2, 
             Fidelity_3: int = 4, 
             Fidelity_4: int = 8, 
             Fidelity_5: int = 16,
-            Fidelity_6: int = 32,
-            EmoScaleLabels: dict = EmoScaleLabelsDefs) -> RunnableLambda:
+            Fidelity_6: int = 32) -> RunnableLambda:
     """
     Return a runnable that returns a simplified conversation history for the LLM to read
     """
