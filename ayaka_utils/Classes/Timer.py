@@ -1,5 +1,6 @@
 import time
 
+## Based on the Timer from the NVIDIA AI courses
 
 class Timer:
     """Useful timing utilities (%%time is great, but doesn't work for async)"""
