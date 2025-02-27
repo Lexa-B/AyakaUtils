@@ -13,7 +13,7 @@ from ayaka_utils.Classes.EmoTensorModels import EmoTensorFull_CTXD, EmoTensor4DS
 if os.path.exists("Configs/EmoTensor/EmoScaleLabels.jsonc"):
     EmoScaleLabelsDefs = json.load(open("Configs/EmoTensor/EmoScaleLabels.jsonc")) # Default EmoTensor Emotion Scale Labels
 elif os.path.exists("Configs/EmoScaleLabels.json"):
-    EmoScaleLabelsDefs = json.load(open("Configs/EmoTensor/EmoScaleLabels.json")) # Default EmoTensor Emotion Scale Labels
+    EmoScaleLabelsDefs = json.load(open("Configs/EmoScaleLabels.json")) # Default EmoTensor Emotion Scale Labels
 else:
     raise FileNotFoundError("EmoScaleLabels.jsonc not found in Configs/EmoTensor/")
 
