@@ -71,10 +71,19 @@ def RSave(RunningState, filename, source=None, preface="", path="./", filetype="
             pprint(PrintText)
 
         if not suppress_save:
-            # Ensure the directory exists
-            os.makedirs(path, exist_ok=True)
+            # Build the file path using os.path.join for OS-independent paths
             if filetype == "json":
                 file_path = os.path.join(path, filename + ".json")
+            elif filetype == "txt":
+                file_path = os.path.join(path, filename + ".txt")
+            else:
+                raise ValueError("Unsupported file type")
+            
+            # Create the directory if it doesn't exist
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            
+            # Write to the file
+            if filetype == "json":
                 with open(file_path, "w", encoding="utf-8") as f:
                     output_dict = {
                         "source": source,
@@ -84,7 +93,6 @@ def RSave(RunningState, filename, source=None, preface="", path="./", filetype="
                     }
                     json.dump(output_dict, f)
             elif filetype == "txt":
-                file_path = os.path.join(path, filename + ".txt")
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(PrintText + "\n\n" + "="*100 + "\n\n" + parsed_text)
 
