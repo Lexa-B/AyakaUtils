@@ -17,6 +17,7 @@ setup(
         "dotenv==0.9.9", # For loading environment variables
         "hjson==3.1.0", # Even though this is for hjson, we use it for JSONC files, such as the model config
         "rich==13.9.4", # For pretty printing
+        "dropbox==12.0.2", # For the Dropbox API to get the EmoTensorContextualizedFile
     ],
     classifiers=[
         'Programming Language :: Python :: 3',
