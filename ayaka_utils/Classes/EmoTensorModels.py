@@ -16,37 +16,37 @@ EmoTensorVersion = "v0.0.1-EmoTensor Sliced Contextualized"
 #  * .etsc - EmoTensor Sliced Contextualized
 
 ################################################################################
+## EmoTensor Emotions
+## Make sure that your project's local EmoList_**.xml file jives with whichever you're using here... otherwise things will break. 
+## ToDo: make this programmatic and robust.
+
+## Plutchik Wheel Emotions list. There is some academic debate about the completeness of the Plutchik wheel, but it is a good starting point for a list of emotions in the proof-of-concept version of EmoTensor.
+PLUTCHIK_EMOTIONS = Literal[
+    # Japanese emotions
+    "喜び", "信頼", "恐怖", "驚き", "悲しみ", "嫌悪", "怒り", "期待",
+    # English emotions        
+    "Joy", "Trust", "Fear", "Surprise", "Sadness", "Disgust", "Anger", "Anticipation"
+]
+
+## Custom EmoList, not yet implemented... I need to work on this list more, but the ultimate goal is to have a list of emotions that respect the orthogonality of Intensity, Valence, and Arousal while also giving a more complete list of human emotions to address primary criticisms of the Plutchik wheel
+## ToDo: Talk with a researcher in the field to really think through these and flesh out the list... It's all about completeness while preserving the orthogonality of the 3 metrics.
+CUSTOM_EMOTIONS = Literal[
+    # English emotions
+    "Joy", "Sadness", "Fear", "Anger", "Disgust", "Surprise", "Shame", "Envy", "Embarrassment", "Pride", "Admiration", "Love", "Gratitude", "Awe"
+]
+
+################################################################################
 ## Pydandtic Models
 
 class EmoTensor1DSlice_CTXD(BaseModel): # Contextualized 1-dimensional (emotion vector: emotion, intensity, valence, arousal) EmoTensor Slice with Context
-    # Emotion: Literal["Joy", "Sadness", "Fear", "Anger", "Disgust", "Surprise", "Shame", "Envy", "Embarrassment", "Pride", "Admiration", "Love", "Gratitude", "Awe"] # Custom
-    emotion: Literal[
-        "Joy",
-        "Trust",
-        "Fear",
-        "Surprise",
-        "Sadness",
-        "Disgust",
-        "Anger",
-        "Anticipation",
-    ]  # Plutchik
+    emotion: PLUTCHIK_EMOTIONS
     context: str
     intensity: float
     valence: float
     arousal: float
 
 class EmoTensor1DSlice_uCTXD(BaseModel): # Uncontextualized 1-dimensional (emotion vector: emotion, intensity, valence, arousal) EmoTensor Slice with Context
-    # Emotion: Literal["Joy", "Sadness", "Fear", "Anger", "Disgust", "Surprise", "Shame", "Envy", "Embarrassment", "Pride", "Admiration", "Love", "Gratitude", "Awe"] # Custom
-    emotion: Literal[
-        "Joy",
-        "Trust",
-        "Fear",
-        "Surprise",
-        "Sadness",
-        "Disgust",
-        "Anger",
-        "Anticipation",
-    ]  # Plutchik
+    emotion: PLUTCHIK_EMOTIONS
     intensity: float
     valence: float
     arousal: float

@@ -13,6 +13,21 @@ SupportedTensorFileVersions = [
 ]
 
 ################################################################################
+## i18n Functions
+
+def LangCheck(EmoScaleLabelsDefs: dict, LangCode: str=None) -> str:
+    # If LangCode is not set by an argument, use the language set in EmoScaleLabels config file
+
+    if LangCode is None:
+        if EmoScaleLabelsDefs['PromptGenLang'] is not None:
+            LangCode = EmoScaleLabelsDefs['PromptGenLang']
+        else:
+            raise ValueError("PromptGenLang is not set")
+    LangCode = LangCode.title()
+
+    return LangCode
+
+################################################################################
 ## Functions
 
 def GetEmoterIndex(Transient: EmoTensor4DSlice_CTXD, Emoter: str) -> int:
@@ -27,50 +42,122 @@ def GetUserPrefName(UserID: str, ConvoUsers: List[dict]) -> str:
     """
     return [d['preferred_name'] for d in ConvoUsers if d['id'] == UserID][0]
 
-def BuildReadableEmoDesc(Emotion: EmoTensor1DSlice_CTXD, EmoScaleLabels: dict, RenderContext=False) -> str:
+def BuildReadableEmoDesc(Emotion: EmoTensor1DSlice_CTXD, EmoScaleLabels: dict, RenderContext=False, LangCode: str=None) -> str:
     """
     Build a readable emotion description that makes it easy for the LLM to read. Can output the context if RenderContext is True. Can have custom label assignments, but defaults to the default labels
     """
-    if Emotion.intensity >= 0.3:
-        EmotionDesc = "\t* "
 
-        # Intensity check – using Scale and Labels_En from config
-        intensity_scale = EmoScaleLabels["Intensity"]["Scale"]
-        intensity_labels = EmoScaleLabels["Intensity"]["Labels_En"]
-        intensity_label = intensity_labels[0]  # Default to lowest
-        for i, threshold in enumerate(intensity_scale):
-            if Emotion.intensity > threshold:
-                intensity_label = intensity_labels[i]
-        EmotionDesc += f"{intensity_label} "
+    if LangCheck(EmoScaleLabels, LangCode) == "Ja":
+        if Emotion.intensity >= 0.3:
+            # Mapping dictionaries for natural phrasing
+            intensity_map = {
+                "わずか": "わずかな",
+                "目立つ": "顕著な",
+                "中": "中程度の",
+                "高": "高い",
+                "非常": "非常に強い"
+            }
+            valence_map = {
+                "非常負": "非常にネガティブな",
+                "負": "ネガティブな",
+                "正": "ポジティブな",
+                "非常正": "非常にポジティブな"
+            }
+            arousal_map = {
+                "低": "低い",
+                "中": "中程度の",
+                "高": "高い",
+                "非常": "非常に高い"
+            }
+            
+            # Intensity check – using Scale and Labels_Ja from config
+            intensity_scale = EmoScaleLabels["Intensity"]["Scale"]
+            intensity_labels = EmoScaleLabels["Intensity"]["Labels_Ja"]
+            intensity_label = intensity_labels[0]  # default to the lowest
+            for i, threshold in enumerate(intensity_scale):
+                if Emotion.intensity > threshold:
+                    intensity_label = intensity_labels[i]
+            natural_intensity = intensity_map.get(intensity_label, intensity_label)
+            
+            # Valence check – using Scale and Labels_Ja from config
+            valence_scale = EmoScaleLabels["Valence"]["Scale"]
+            valence_labels = EmoScaleLabels["Valence"]["Labels_Ja"]
+            if Emotion.valence <= valence_scale[0][0]:
+                valence_label = valence_labels[0][0]
+            elif Emotion.valence <= valence_scale[0][1]:
+                valence_label = valence_labels[0][1]
+            elif Emotion.valence >= valence_scale[1][1]:
+                valence_label = valence_labels[1][1]
+            elif Emotion.valence >= valence_scale[1][0]:
+                valence_label = valence_labels[1][0]
+            natural_valence = valence_map.get(valence_label, valence_label)
+            
+            # Arousal check – using Scale and Labels_Ja from config
+            arousal_scale = EmoScaleLabels["Arousal"]["Scale"]
+            arousal_labels = EmoScaleLabels["Arousal"]["Labels_Ja"]
+            arousal_label = arousal_labels[0]  # default to the lowest
+            for i, threshold in enumerate(arousal_scale):
+                if Emotion.arousal > threshold:
+                    arousal_label = arousal_labels[i]
+            natural_arousal = arousal_map.get(arousal_label, arousal_label)
+            
+            # Build a natural-sounding Japanese sentence
+            EmotionDesc = (
+                f"\t* {Emotion.emotion}は、"
+                f"{natural_intensity}強さで感じられ、"
+                f"{natural_valence}感情として現れ、"
+                f"覚醒度は{natural_arousal}である。"
+            )
+            
+            if RenderContext:
+                EmotionDesc += f"（この感情の文脈: \"{Emotion.context}\")\n"
+            else:
+                EmotionDesc += "\n"
+            return EmotionDesc
 
-        # Valence check – using Scale and Labels_En from config
-        valence_scale = EmoScaleLabels["Valence"]["Scale"]
-        valence_labels = EmoScaleLabels["Valence"]["Labels_En"]
-        if Emotion.valence <= valence_scale[0][0]:
-            EmotionDesc += f"and {valence_labels[0][0]} "
-        elif Emotion.valence <= valence_scale[0][1]:
-            EmotionDesc += f"{valence_labels[0][1]} "
-        elif Emotion.valence >= valence_scale[1][1]:
-            EmotionDesc += f"and {valence_labels[1][1]} "
-        elif Emotion.valence >= valence_scale[1][0]:
-            EmotionDesc += f"{valence_labels[1][0]} "
+    elif LangCheck(EmoScaleLabels, LangCode) == "En":
+        if Emotion.intensity >= 0.3:
+            EmotionDesc = "\t* "
 
-        EmotionDesc += f"{Emotion.emotion} "
+            # Intensity check – using Scale and Labels_En from config
+            intensity_scale = EmoScaleLabels["Intensity"]["Scale"]
+            intensity_labels = EmoScaleLabels["Intensity"]["Labels_En"]
+            intensity_label = intensity_labels[0]  # Default to lowest
+            for i, threshold in enumerate(intensity_scale):
+                if Emotion.intensity > threshold:
+                    intensity_label = intensity_labels[i]
+            EmotionDesc += f"{intensity_label} "
 
-        # Arousal check – using Scale and Labels_En from config
-        arousal_scale = EmoScaleLabels["Arousal"]["Scale"]
-        arousal_labels = EmoScaleLabels["Arousal"]["Labels_En"]
-        arousal_label = arousal_labels[0]  # Default to lowest
-        for i, threshold in enumerate(arousal_scale):
-            if Emotion.arousal > threshold:
-                arousal_label = arousal_labels[i]
-        EmotionDesc += f"with {arousal_label.lower()} arousal. "
+            # Valence check – using Scale and Labels_En from config
+            valence_scale = EmoScaleLabels["Valence"]["Scale"]
+            valence_labels = EmoScaleLabels["Valence"]["Labels_En"]
+            if Emotion.valence <= valence_scale[0][0]:
+                EmotionDesc += f"and {valence_labels[0][0]} "
+            elif Emotion.valence <= valence_scale[0][1]:
+                EmotionDesc += f"{valence_labels[0][1]} "
+            elif Emotion.valence >= valence_scale[1][1]:
+                EmotionDesc += f"and {valence_labels[1][1]} "
+            elif Emotion.valence >= valence_scale[1][0]:
+                EmotionDesc += f"{valence_labels[1][0]} "
 
-        if RenderContext:
-            EmotionDesc += f"(The context for this specific emotion was \"{Emotion.context}\")\n"
-        else:
-            EmotionDesc += "\n"
-        return EmotionDesc
+            EmotionDesc += f"{Emotion.emotion} "
+
+            # Arousal check – using Scale and Labels_En from config
+            arousal_scale = EmoScaleLabels["Arousal"]["Scale"]
+            arousal_labels = EmoScaleLabels["Arousal"]["Labels_En"]
+            arousal_label = arousal_labels[0]  # Default to lowest
+            for i, threshold in enumerate(arousal_scale):
+                if Emotion.arousal > threshold:
+                    arousal_label = arousal_labels[i]
+            EmotionDesc += f"with {arousal_label.lower()} arousal. "
+
+            if RenderContext:
+                EmotionDesc += f"(The context for this specific emotion was \"{Emotion.context}\")\n"
+            else:
+                EmotionDesc += "\n"
+            return EmotionDesc
+    else:
+        raise ValueError(f"Unsupported language code: {LangCode}")
     
 def BuildReadableEmoStateDesc(Emotions: EmoTensor2DSlice_CTXD, EmoScaleLabels: dict, RenderContext=False) -> str:
     """

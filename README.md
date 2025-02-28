@@ -11,5 +11,5 @@ AyakaUtils/
 │   ├── Defs/               # Python functions
 │   ├── Other/              # Other utility modules
 │   └── Runnables/          # Runnable functions for LangChain
-└── tests/                  # To be implemented: Unit tests
-    └── test_utilities.py
+└── tests/                  # Unit tests
+    └── TEST-BuildReadableEmoDisc.py
