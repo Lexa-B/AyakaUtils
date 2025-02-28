@@ -1,4 +1,4 @@
-# Python
+import os
 import json
 from functools import partial
 
@@ -52,7 +52,6 @@ def RSave(RunningState, filename, source=None, preface="", path="./", filetype="
                 return str(x)
 
         raw_text = get_text(input_text)
-
         parsed_text = StrOutputParser().parse(raw_text)
 
         ## Done loading the text, now acting on it
@@ -63,7 +62,7 @@ def RSave(RunningState, filename, source=None, preface="", path="./", filetype="
         if not suppress_print:
             PrintText = (f"{preface}:\nIf model is {ModelName}, then the token count is {GetTokenCount(parsed_text)}\n")
             if not suppress_save:
-                PrintText += (f"Saving {source} to \'{filename}\' in \'{path}\'\nIt ")
+                PrintText += (f"Saving {source} to '{filename}' in '{path}'\nIt ")
             else:
                 PrintText += (f"Not saving {source} due to suppress_save attribute, but it ")
             PrintText += (f"contains {len(parsed_text)} characters")
@@ -72,8 +71,11 @@ def RSave(RunningState, filename, source=None, preface="", path="./", filetype="
             pprint(PrintText)
 
         if not suppress_save:
+            # Ensure the directory exists
+            os.makedirs(path, exist_ok=True)
             if filetype == "json":
-                with open(path + filename + ".json", "w") as f:
+                file_path = os.path.join(path, filename + ".json")
+                with open(file_path, "w", encoding="utf-8") as f:
                     output_dict = {
                         "source": source,
                         "preface": preface,
@@ -82,7 +84,8 @@ def RSave(RunningState, filename, source=None, preface="", path="./", filetype="
                     }
                     json.dump(output_dict, f)
             elif filetype == "txt":
-                with open(path + filename + ".txt", "w", encoding="utf-8") as f:
+                file_path = os.path.join(path, filename + ".txt")
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(PrintText + "\n\n" + "="*100 + "\n\n" + parsed_text)
 
         return RunningState
