@@ -226,24 +226,24 @@ def GenHistExtCtx_OtherUsers(transient: EmoTensor4DSlice_CTXD, ConvoUsers: List[
             Output += f"* {GetUserPrefName(emoter.emoter_user, ConvoUsers)}'s external context:「{emoter.external_context}」\n"
     return Output
 
-def GenHistEmoStateDesc_PerspUser(transient: EmoTensor4DSlice_CTXD, ConvoUsers: List[dict], PerspectiveUser: str, RenderContext: bool) -> str:
+def GenHistEmoStateDesc_PerspUser(transient: EmoTensor4DSlice_CTXD, ConvoUsers: List[dict], PerspectiveUser: str, EmoScaleLabels: dict, RenderContext: bool) -> str:
     """
     Generate the emotional state description for the perspective user in the given transient
     """
     Output = ""
     for emoter in transient.emoters:
         if emoter.emoter_user == PerspectiveUser:
-            Output += f"* {GetUserPrefName(emoter.emoter_user, ConvoUsers)}'s emotions:\n{BuildReadableEmoStateDesc(emoter.targets[0].emotions, RenderContext=RenderContext)}\n"
+            Output += f"* {GetUserPrefName(emoter.emoter_user, ConvoUsers)}'s emotions:\n{BuildReadableEmoStateDesc(emoter.targets[0].emotions, EmoScaleLabels, RenderContext=RenderContext)}\n"
     return Output
 
-def GenHistEmoStateDesc_OtherUsers(transient: EmoTensor4DSlice_CTXD, ConvoUsers: List[dict], PerspectiveUser: str, RenderContext: bool) -> str:
+def GenHistEmoStateDesc_OtherUsers(transient: EmoTensor4DSlice_CTXD, ConvoUsers: List[dict], PerspectiveUser: str, EmoScaleLabels: dict, RenderContext: bool) -> str:
     """
     Generate the emotional state description for all other users in the given transient
     """
     Output = ""
     for emoter in transient.emoters:
         if emoter.emoter_user != PerspectiveUser:
-            Output += f"* {GetUserPrefName(emoter.emoter_user, ConvoUsers)}'s emotions:\n{BuildReadableEmoStateDesc(emoter.targets[0].emotions, RenderContext=RenderContext)}\n"
+            Output += f"* {GetUserPrefName(emoter.emoter_user, ConvoUsers)}'s emotions:\n{BuildReadableEmoStateDesc(emoter.targets[0].emotions, EmoScaleLabels, RenderContext=RenderContext)}\n"
     return Output
 
 ################################################################################
@@ -292,8 +292,8 @@ def GetSimplifiedConversationHistory(
                 GenHistEmoCtx(transient, ConvoUsers, PerspectiveUser) +
                 GenHistExtCtx_PerspUser(transient, ConvoUsers, PerspectiveUser) +
                 GenHistExtCtx_OtherUsers(transient, ConvoUsers, PerspectiveUser) +
-                GenHistEmoStateDesc_PerspUser(transient, ConvoUsers, PerspectiveUser, RenderContext=True) +
-                GenHistEmoStateDesc_OtherUsers(transient, ConvoUsers, PerspectiveUser, RenderContext=True)
+                GenHistEmoStateDesc_PerspUser(transient, ConvoUsers, PerspectiveUser, EmoScaleLabels, RenderContext=True) +
+                GenHistEmoStateDesc_OtherUsers(transient, ConvoUsers, PerspectiveUser, EmoScaleLabels, RenderContext=True)
             ) + output # Prepend to output
 
         elif i < (Fidelity_1 + Fidelity_2): # High-fidelity message. Show a lot of detail, including the summarized emotional context.
@@ -303,8 +303,8 @@ def GetSimplifiedConversationHistory(
                 GenHistEmoSynopsis(transient, ConvoUsers, PerspectiveUser) +
                 GenHistExtCtx_PerspUser(transient, ConvoUsers, PerspectiveUser) +
                 GenHistExtCtx_OtherUsers(transient, ConvoUsers, PerspectiveUser) +
-                GenHistEmoStateDesc_PerspUser(transient, ConvoUsers, PerspectiveUser, RenderContext=True) +
-                GenHistEmoStateDesc_OtherUsers(transient, ConvoUsers, PerspectiveUser, RenderContext=False)
+                GenHistEmoStateDesc_PerspUser(transient, ConvoUsers, PerspectiveUser, EmoScaleLabels, RenderContext=True) +
+                GenHistEmoStateDesc_OtherUsers(transient, ConvoUsers, PerspectiveUser, EmoScaleLabels, RenderContext=False)
             ) + output # Prepend to output
         
         elif i < (Fidelity_1 + Fidelity_2 + Fidelity_3): # Medium-fidelity message. Show some detail, including the summarized emotional context.
@@ -314,8 +314,8 @@ def GetSimplifiedConversationHistory(
                 GenHistEmoSynopsis(transient, ConvoUsers, PerspectiveUser) +
                 GenHistExtCtx_PerspUser(transient, ConvoUsers, PerspectiveUser) +
                 GenHistExtCtx_OtherUsers(transient, ConvoUsers, PerspectiveUser) +
-                GenHistEmoStateDesc_PerspUser(transient, ConvoUsers, PerspectiveUser, RenderContext=True) +
-                GenHistEmoStateDesc_OtherUsers(transient, ConvoUsers, PerspectiveUser, RenderContext=False)
+                GenHistEmoStateDesc_PerspUser(transient, ConvoUsers, PerspectiveUser, EmoScaleLabels, RenderContext=True) +
+                GenHistEmoStateDesc_OtherUsers(transient, ConvoUsers, PerspectiveUser, EmoScaleLabels, RenderContext=False)
             ) + output # Prepend to output
         
         elif i < (Fidelity_1 + Fidelity_2 + Fidelity_3 + Fidelity_4): # Low-fidelity message. Show a bit of detail, including the summarized emotional context.
@@ -324,14 +324,14 @@ def GetSimplifiedConversationHistory(
                 GenHistMessage(transient, ConvoUsers) +
                 GenHistEmoSynopsis(transient, ConvoUsers, PerspectiveUser) +
                 GenHistExtCtx_PerspUser(transient, ConvoUsers, PerspectiveUser) +
-                GenHistEmoStateDesc_PerspUser(transient, ConvoUsers, PerspectiveUser, RenderContext=False)
+                GenHistEmoStateDesc_PerspUser(transient, ConvoUsers, PerspectiveUser, EmoScaleLabels, RenderContext=False)
             ) + output # Prepend to output
         
         elif i < (Fidelity_1 + Fidelity_2 + Fidelity_3 + Fidelity_4 + Fidelity_5): # Lower-fidelity message. Show a tiny bit of detail.
             output = (
                 f"Message {len(TF_Transients) - i}:\n" + 
                 GenHistMessage(transient, ConvoUsers) +
-                GenHistEmoStateDesc_PerspUser(transient, ConvoUsers, PerspectiveUser, RenderContext=False)
+                GenHistEmoStateDesc_PerspUser(transient, ConvoUsers, PerspectiveUser, EmoScaleLabels, RenderContext=False)
             ) + output # Prepend to output
 
         elif i < (Fidelity_1 + Fidelity_2 + Fidelity_3 + Fidelity_4 + Fidelity_5 + Fidelity_6): # Lowest-fidelity message. Only show the message.

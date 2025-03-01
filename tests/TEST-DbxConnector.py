@@ -9,5 +9,5 @@ from ayaka_utils.Defs.DbxConnector import DbxFIO
 
 DataToSend = json.load(open('./tests/EmoTensorDB/EmoTensor-TEST.etsc', 'r'))
 
-DbxFIO('/EmoTensor/data/Sliced-Contextualized/EmoTensor-TEST.etsc', mode="write", type="json", data=DataToSend)
-pprint(DbxFIO('/EmoTensor/data/Sliced-Contextualized/EmoTensor-TEST.etsc', mode="read", type="json"))
+DbxFIO(DbxPath='/EmoTensor/data/Sliced-Contextualized/EmoTensor-TEST.etsc', mode="write", type="json", data=DataToSend)
+pprint(DbxFIO(DbxPath='/EmoTensor/data/Sliced-Contextualized/EmoTensor-TEST.etsc', mode="read", type="json"))
