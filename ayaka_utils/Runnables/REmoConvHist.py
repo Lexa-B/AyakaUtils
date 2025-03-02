@@ -2,14 +2,15 @@ from typing import List
 
 from langchain.schema.runnable import RunnableLambda
 
-from ayaka_utils.Classes.EmoTensorModels import EmoTensorFull_CTXD, EmoTensor4DSlice_CTXD, EmoTensor2DSlice_CTXD, EmoTensor1DSlice_CTXD
+from ayaka_models_emotensor.EmoTensorModels import EmoTensorFull_CTXD, EmoTensor4DSlice_CTXD, EmoTensor2DSlice_CTXD, EmoTensor1DSlice_CTXD
 #from Utils.Defs.pprint import pprint
 
 ################################################################################
 ## Configuration
 
 SupportedTensorFileVersions = [
-    "v0.0.1-EmoTensor Sliced Contextualized"
+    "v0.0.1-EmoTensor Sliced Contextualized",
+    "v0.0.2-EmoTensor Sliced Contextualized"
 ]
 
 ################################################################################
