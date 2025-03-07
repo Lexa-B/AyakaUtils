@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ayaka_utils',
-    version='0.0.5',
+    version='0.0.6',
     author='Lexa-B',
     author_email='Lexa.40@proton.me',
     description='A collection of utilities to be shared across the AyakaAI codebase',
